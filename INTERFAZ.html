@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Página de descuentos exclusivos">
+    <title>Ofertas y Descuentos Exclusivos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #ff6f61, #ff9e80);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 48px;
+        }
+        header p {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        header button {
+            background-color: #ffffff;
+            color: #ff6f61;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        header button:hover {
+            background-color: #ffd7d1;
+        }
+        section {
+            padding: 40px;
+            text-align: center;
+        }
+        .calculo {
+            background-color: #fff;
+            border: 2px solid #ff6f61;
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .calculo input, .calculo button {
+            margin: 10px 0;
+            padding: 10px;
+            width: calc(100% - 24px);
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .calculo button {
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .calculo button:hover {
+            background-color: #e55b50;
+        }
+        .productos-lista {
+            margin: 20px 0;
+            text-align: left;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+        a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>¡Ofertas Exclusivas para Ti!</h1>
+        <p>Aprovecha los mejores descuentos del momento.</p>
+        <button onclick="scrollToCalculator()">Ir a la Calculadora</button>
+    </header>
+
+    <section>
+        <div class="calculo" id="calculator-section">
+            <h2>Calculadora de Descuento</h2>
+            <form id="product-form">
+                <label for="precio-producto">Precio del producto:</label><br>
+                <input type="number" id="precio-producto" placeholder="Introduce el precio" required><br>
+                
+                <label for="descuento-producto">Descuento del producto (%):</label><br>
+                <input type="number" min="1" max="100" id="descuento-producto" placeholder="Introduce el descuento (opcional)"><br>
+                
+                <button type="button" onclick="agregarProducto()">Agregar Producto</button>
+            </form>
+
+            <div class="productos-lista" id="productos-lista">
+                <h3>Productos añadidos:</h3>
+                <ul id="lista-precios"></ul>
+                <p><strong>Precio total de los productos:</strong> $<span id="precio-total">0.00</span></p>
+                <p><strong>Total de productos:</strong> <span id="cantidad-productos">0</span></p>
+            </div>
+
+            <button type="button" onclick="calcularDescuento()">Calcular Descuento</button>
+            <button type="button" onclick="reiniciarCalculo()">Reiniciar Cálculo</button>
+
+            <div id="resultado" style="margin-top: 20px; font-size: 18px;"></div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 OfertasDescuentos.com | <a href="#">Política de Privacidad</a></p>
+    </footer>
+
+    <script>
+        let productos = [];
+
+        function scrollToCalculator() {
+            document.getElementById('calculator-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function agregarProducto() {
+            const precioProducto = parseFloat(document.getElementById('precio-producto').value);
+            const descuentoProducto = parseFloat(document.getElementById('descuento-producto').value) || 0;
+
+            if (!isNaN(precioProducto) && precioProducto > 0) {
+                productos.push({ precio: precioProducto, descuento: descuentoProducto });
+                actualizarListaProductos();
+                document.getElementById('precio-producto').value = '';
+                document.getElementById('descuento-producto').value = '';
+            } else {
+                alert('Por favor, introduce un precio válido.');
+            }
+        }
+
+        function actualizarListaProductos() {
+            const listaPrecios = document.getElementById('lista-precios');
+            const precioTotalElement = document.getElementById('precio-total');
+            const cantidadProductosElement = document.getElementById('cantidad-productos');
+            listaPrecios.innerHTML = '';
+            let total = 0;
+
+            productos.forEach((producto, index) => {
+                const precioConDescuento = producto.precio * (1 - producto.descuento / 100);
+                total += precioConDescuento;
+                const li = document.createElement('li');
+                li.textContent = `Producto ${index + 1}: Precio original $${producto.precio.toFixed(2)}, Descuento ${producto.descuento}% -> $${precioConDescuento.toFixed(2)}`;
+                listaPrecios.appendChild(li);
+            });
+
+            precioTotalElement.textContent = total.toFixed(2);
+            cantidadProductosElement.textContent = productos.length;
+        }
+
+        function calcularDescuento() {
+            let precioTotal = 0;
+            let ahorroEspecifico = 0;
+
+            productos.forEach(producto => {
+                const descuento = producto.precio * producto.descuento / 100;
+                ahorroEspecifico += descuento;
+                precioTotal += producto.precio - descuento;
+            });
+
+            const cantidadProductos = productos.length;
+
+            let descuentoAdicional = 0;
+            if (cantidadProductos >= 4) {
+                descuentoAdicional = precioTotal * 0.2;
+            }
+
+            const precioFinal = precioTotal - descuentoAdicional;
+            const ahorroTotal = ahorroEspecifico + descuentoAdicional;
+
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = `
+                <p><strong>Precio Total antes de descuentos adicionales:</strong> $${precioTotal.toFixed(2)}</p>
+                <p><strong>Ahorro por descuentos específicos:</strong> $${ahorroEspecifico.toFixed(2)}</p>
+                <p><strong>Descuento Adicional por 4 o más productos:</strong> $${descuentoAdicional.toFixed(2)}</p>
+                <p><strong>Precio Final:</strong> $${precioFinal.toFixed(2)}</p>
+                <p><strong>Ahorro Total:</strong> $${ahorroTotal.toFixed(2)}</p>
+            `;
+        }
+
+        function reiniciarCalculo() {
+            productos = [];
+            document.getElementById('lista-precios').innerHTML = '';
+            document.getElementById('precio-total').textContent = '0.00';
+            document.getElementById('cantidad-productos').textContent = '0';
+            document.getElementById('resultado').innerHTML = '';
+            document.getElementById('precio-producto').value = '';
+            document.getElementById('descuento-producto').value = '';
+        }
+    </script>
+</body>
+</html>
